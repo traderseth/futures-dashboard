@@ -5,53 +5,45 @@
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Futures Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
           body { background-color: #111827; }
-          @keyframes scroll {
-                  0% { transform: translateX(0); }
-                  100% { transform: translateX(-33.33%); }
-          }
+          @keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-33.33%); } }
           .animate-scroll { animation: scroll 25s linear infinite; }
         </style>
   </head>
   <body class="min-h-screen text-white p-5">
       <div id="app"></div>div>
-
       <script>
             const FUTURES = [
               { symbol: 'DX=F', name: 'US Dollar', color: '#22c55e', url: 'https://www.investing.com/currencies/us-dollar-index', base: 104.25 },
-              { symbol: 'SIH26.CMX', name: 'Silver', color: '#a1a1aa', url: 'https://www.investing.com/commodities/silver', base: 82.00 },
+              { symbol: 'SIH26.CMX', name: 'Silver', color: '#a1a1aa', url: 'https://www.investing.com/commodities/silver', base: 84.12 },
               { symbol: 'CL=F', name: 'Crude Oil', color: '#f97316', url: 'https://www.investing.com/commodities/crude-oil', base: 72.45 },
               { symbol: 'GC=F', name: 'Gold', color: '#eab308', url: 'https://www.investing.com/commodities/gold', base: 2045.30 },
               { symbol: 'ES=F', name: 'S&P 500', color: '#3b82f6', url: 'https://www.investing.com/indices/us-spx-500-futures', base: 5125.50 },
                   ];
-
-            const NEWS_DATA = {
-                    commodities: [
-                      { title: "Gold futures rally on safe-haven demand", source: "Kitco", time: 2, url: "https://www.google.com/search?q=gold+futures+safe+haven&tbm=nws" },
-                      { title: "Silver outperforms gold in early trading", source: "Reuters", time: 8, url: "https://www.google.com/search?q=silver+outperforms+gold&tbm=nws" },
-                      { title: "Dollar index retreats from highs", source: "FX Street", time: 18, url: "https://www.google.com/search?q=dollar+index+DXY&tbm=nws" },
-                      { title: "Crude oil inventories surprise to downside", source: "EIA", time: 35, url: "https://www.google.com/search?q=crude+oil+inventories+EIA&tbm=nws" },
-                      { title: "S&P futures point to higher open", source: "Bloomberg", time: 48, url: "https://www.google.com/search?q=S%26P+futures&tbm=nws" },
-                            ],
-                    iran: [
-                      { title: "Iran oil exports face new scrutiny amid sanctions enforcement", source: "Reuters", time: 5, url: "https://www.google.com/search?q=iran+oil+exports+sanctions&tbm=nws" },
-                      { title: "OPEC+ considers response to Iran production levels", source: "Bloomberg", time: 15, url: "https://www.google.com/search?q=OPEC+iran+production&tbm=nws" },
-                      { title: "Iran nuclear talks: European diplomats seek new framework", source: "FT", time: 32, url: "https://www.google.com/search?q=iran+nuclear+talks&tbm=nws" },
-                      { title: "Oil prices react to Middle East tensions", source: "CNBC", time: 45, url: "https://www.google.com/search?q=oil+prices+middle+east&tbm=nws" },
-                      { title: "Iran's oil minister comments on production targets", source: "Reuters", time: 60, url: "https://www.google.com/search?q=iran+oil+minister&tbm=nws" },
-                            ],
-                    shutdown: [
-                      { title: "Congress faces deadline on government funding bill", source: "AP", time: 3, url: "https://www.google.com/search?q=congress+government+funding+bill&tbm=nws" },
-                      { title: "House Republicans debate spending priorities", source: "Politico", time: 12, url: "https://www.google.com/search?q=house+republicans+spending&tbm=nws" },
-                      { title: "Senate leaders discuss continuing resolution options", source: "The Hill", time: 28, url: "https://www.google.com/search?q=senate+continuing+resolution&tbm=nws" },
-                      { title: "Federal agencies prepare contingency plans", source: "WaPo", time: 42, url: "https://www.google.com/search?q=federal+agencies+shutdown+contingency&tbm=nws" },
-                      { title: "Markets watch shutdown risk with caution", source: "CNBC", time: 55, url: "https://www.google.com/search?q=markets+government+shutdown&tbm=nws" },
-                            ]
-            };
-
+            const NEWS_ITEMS = [
+              { title: "Gold futures rally on safe-haven demand", source: "Kitco", time: 2, cat: "commodities" },
+              { title: "Iran oil exports face new scrutiny amid sanctions", source: "Reuters", time: 5, cat: "iran" },
+              { title: "Congress faces deadline on government funding bill", source: "AP", time: 3, cat: "shutdown" },
+              { title: "Silver outperforms gold in early trading", source: "Reuters", time: 8, cat: "commodities" },
+              { title: "OPEC+ considers response to Iran production levels", source: "Bloomberg", time: 15, cat: "iran" },
+              { title: "House Republicans debate spending priorities", source: "Politico", time: 12, cat: "shutdown" },
+              { title: "Dollar index retreats from highs", source: "FX Street", time: 18, cat: "commodities" },
+              { title: "Iran nuclear talks: European diplomats seek new framework", source: "FT", time: 32, cat: "iran" },
+              { title: "Senate leaders discuss continuing resolution options", source: "The Hill", time: 28, cat: "shutdown" },
+              { title: "Crude oil inventories surprise to downside", source: "EIA", time: 35, cat: "commodities" },
+              { title: "Oil prices react to Middle East tensions", source: "CNBC", time: 45, cat: "iran" },
+              { title: "Federal agencies prepare contingency plans", source: "WaPo", time: 42, cat: "shutdown" },
+              { title: "S&P futures point to higher open", source: "Bloomberg", time: 48, cat: "commodities" },
+              { title: "Iran's oil minister comments on production targets", source: "Reuters", time: 60, cat: "iran" },
+              { title: "Markets watch shutdown risk with caution", source: "CNBC", time: 55, cat: "shutdown" },
+                  ];
+            let priceHistory = {};
+            let charts = {};
+            FUTURES.forEach(f => { priceHistory[f.symbol] = []; });
             const formatTime = (mins) => mins < 60 ? mins + 'm ago' : Math.floor(mins / 60) + 'h ago';
-
+            const catColors = { commodities: 'border-yellow-500', iran: 'border-red-500', shutdown: 'border-blue-500' };
             function generatePrices() {
                     const now = Date.now();
                     return FUTURES.map(f => {
@@ -61,90 +53,62 @@
                               const noise = (Math.random() - 0.5) * volatility * 0.5;
                               const change = trend + noise;
                               const price = f.base * (1 + change / 100);
+                              priceHistory[f.symbol].push({ time: now, price: price });
+                              if (priceHistory[f.symbol].length > 20) priceHistory[f.symbol].shift();
                               return { ...f, price, change };
                     });
             }
-
-            function renderNewsFeed(title, icon, items) {
-                    return '<div class="bg-gray-800 rounded-xl overflow-hidden h-96 flex flex-col">' +
-                              '<div class="px-4 py-3 border-b border-gray-700 flex items-center gap-2 bg-gray-900">' +
-                                '<span class="text-xl">' + icon + '</span>' +
-                                '<span class="font-semibold text-white text-lg">' + title + '</span>' +
-                                '<span class="ml-auto text-sm px-2 py-0.5 bg-green-500 rounded-full text-white">LIVE</span>' +
-                              '</div>' +
-                              '<div class="flex-1 overflow-y-auto p-2">' +
-                                items.map(item => 
-                                              '<a href="' + item.url + '" target="_blank" rel="noopener noreferrer" class="block p-4 mb-2 bg-gray-700 rounded-lg border-l-2 border-blue-500 hover:bg-gray-600 transition-colors">' +
-                                                '<div class="text-white text-base leading-snug mb-2">' + item.title + '</div>' +
-                                                '<div class="flex justify-between text-sm">' +
-                                                  '<span class="text-gray-400">' + item.source + '</span>' +
-                                                  '<span class="text-gray-500">' + formatTime(item.time) + '</span>' +
-                                                '</div>' +
-                                              '</a>'
-                                                    ).join('') +
-                              '</div>' +
-                              '<div class="px-3 py-2 border-t border-gray-700 text-sm text-gray-500 text-center">Refreshes every 30 sec</div>' +
-                            '</div>';
-            }
-
             function render() {
                     const prices = generatePrices();
                     const tickerItems = [...prices, ...prices, ...prices];
                     const lastUpdate = new Date().toLocaleTimeString();
-
+                    const sortedNews = [...NEWS_ITEMS].sort((a, b) => a.time - b.time);
                     document.getElementById('app').innerHTML = 
                               '<div class="bg-black rounded-lg mb-5 overflow-hidden sticky top-0 z-50">' +
                                 '<div class="flex animate-scroll whitespace-nowrap py-4">' +
-                                  tickerItems.map(p => 
-                                                  '<span class="px-8 font-medium text-lg ' + (p.change >= 0 ? 'text-green-500' : 'text-red-500') + '">' +
-                                                    '<span class="text-gray-400 mr-2">' + p.name + '</span>' +
-                                                    (p.change >= 0 ? '▲' : '▼') + ' ' + Math.abs(p.change).toFixed(2) + '%' +
-                                                  '</span>'
-                                                              ).join('') +
+                                  tickerItems.map(p => '<span class="px-8 font-medium text-lg ' + (p.change >= 0 ? 'text-green-500' : 'text-red-500') + '"><span class="text-gray-400 mr-2">' + p.name + '</span>' + (p.change >= 0 ? '▲' : '▼') + ' ' + Math.abs(p.change).toFixed(2) + '%</span>').join('') +
                                 '</div>' +
                               '</div>' +
                               '<div class="flex justify-between items-center mb-5 flex-wrap gap-4">' +
-                                '<div>' +
-                                  '<h1 class="text-3xl font-bold">Futures Dashboard</h1>' +
-                                  '<p class="text-gray-400 text-base">Live prices, sentiment & news feeds</p>' +
-                                '</div>' +
-                                '<div class="flex items-center gap-4">' +
-                                  '<span class="bg-green-500 px-5 py-2 rounded-md text-base">● Live</span>' +
-                                  '<span class="text-gray-500 text-sm">' + lastUpdate + '</span>' +
-                                '</div>' +
+                                '<div><h1 class="text-3xl font-bold">Futures Dashboard</h1><p class="text-gray-400 text-base">Live prices, charts & news feeds</p></div>' +
+                                '<div class="flex items-center gap-4"><span class="bg-green-500 px-5 py-2 rounded-md text-base">● Live</span><span class="text-gray-500 text-sm">' + lastUpdate + '</span></div>' +
                               '</div>' +
-                              '<div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">' +
-                                prices.map(p => 
-                                              '<a href="' + p.url + '" target="_blank" rel="noopener noreferrer" class="bg-gray-800 rounded-xl p-5 block hover:bg-gray-750 transition" style="border-left: 4px solid ' + p.color + '">' +
-                                                '<div class="flex justify-between mb-2">' +
-                                                  '<span class="text-gray-400 text-sm">' + p.name + '</span>' +
-                                                  '<span class="text-blue-400 text-sm">↗</span>' +
-                                                '</div>' +
-                                                '<div class="text-2xl font-bold">$' + p.price.toFixed(2) + '</div>' +
-                                                '<div class="text-base font-medium ' + (p.change >= 0 ? 'text-green-500' : 'text-red-500') + '">' +
-                                                  (p.change >= 0 ? '▲' : '▼') + ' ' + (p.change >= 0 ? '+' : '') + p.change.toFixed(2) + '%' +
-                                                '</div>' +
-                                              '</a>'
-                                                     ).join('') +
+                              '<div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">' +
+                                prices.map(p => '<a href="' + p.url + '" target="_blank" class="bg-gray-800 rounded-xl p-4 block hover:bg-gray-750 transition" style="border-left: 4px solid ' + p.color + '"><div class="flex justify-between mb-1"><span class="text-gray-400 text-sm">' + p.name + '</span><span class="text-blue-400 text-sm">↗</span></div><div class="text-2xl font-bold">$' + p.price.toFixed(2) + '</div><div class="text-base font-medium ' + (p.change >= 0 ? 'text-green-500' : 'text-red-500') + '">' + (p.change >= 0 ? '▲' : '▼') + ' ' + (p.change >= 0 ? '+' : '') + p.change.toFixed(2) + '%</div></a>').join('') +
+                              '</div>' +
+                              '<div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">' +
+                                prices.map(p => '<div class="bg-gray-800 rounded-xl p-3"><div class="text-sm text-gray-400 mb-2">' + p.name + ' - Last 20 ticks</div><canvas id="chart-' + p.symbol.replace(/[^a-zA-Z0-9]/g, '') + '" height="100"></canvas></div>').join('') +
                               '</div>' +
                               '<div id="feedsSection">' +
-                                '<h2 class="text-2xl font-bold mb-5 flex items-center gap-2">' +
-                                  '<span class="text-green-500">●</span> Live Feeds' +
-                                '</h2>' +
-                                '<div class="grid md:grid-cols-3 gap-4">' +
-                                  renderNewsFeed('Commodities & Futures', '📈', NEWS_DATA.commodities) +
-                                  renderNewsFeed('Iran News', '🇮🇷', NEWS_DATA.iran) +
-                                  renderNewsFeed('Government Shutdown', '🏛️', NEWS_DATA.shutdown) +
+                                '<h2 class="text-2xl font-bold mb-4 flex items-center gap-2"><span class="text-green-500">●</span> Live Feeds <span class="text-sm font-normal text-gray-500 ml-2">📈 Commodities | 🇮🇷 Iran | 🏛️ Shutdown</span></h2>' +
+                                '<div class="bg-gray-800 rounded-xl overflow-hidden">' +
+                                  '<div class="grid grid-cols-3 gap-0 divide-x divide-gray-700">' +
+                                    '<div class="p-2"><div class="text-center text-yellow-500 font-semibold pb-2 border-b border-gray-700 mb-2">📈 Commodities</div>' + sortedNews.filter(n => n.cat === 'commodities').map(n => '<div class="p-2 mb-1 bg-gray-700 rounded text-sm border-l-2 ' + catColors[n.cat] + '"><div class="text-white mb-1">' + n.title + '</div><div class="flex justify-between text-xs text-gray-400"><span>' + n.source + '</span><span>' + formatTime(n.time) + '</span></div></div>').join('') + '</div>' +
+                                    '<div class="p-2"><div class="text-center text-red-500 font-semibold pb-2 border-b border-gray-700 mb-2">🇮🇷 Iran News</div>' + sortedNews.filter(n => n.cat === 'iran').map(n => '<div class="p-2 mb-1 bg-gray-700 rounded text-sm border-l-2 ' + catColors[n.cat] + '"><div class="text-white mb-1">' + n.title + '</div><div class="flex justify-between text-xs text-gray-400"><span>' + n.source + '</span><span>' + formatTime(n.time) + '</span></div></div>').join('') + '</div>' +
+                                    '<div class="p-2"><div class="text-center text-blue-500 font-semibold pb-2 border-b border-gray-700 mb-2">🏛️ Gov Shutdown</div>' + sortedNews.filter(n => n.cat === 'shutdown').map(n => '<div class="p-2 mb-1 bg-gray-700 rounded text-sm border-l-2 ' + catColors[n.cat] + '"><div class="text-white mb-1">' + n.title + '</div><div class="flex justify-between text-xs text-gray-400"><span>' + n.source + '</span><span>' + formatTime(n.time) + '</span></div></div>').join('') + '</div>' +
+                                  '</div>' +
+                                  '<div class="text-center text-gray-500 text-sm py-2 border-t border-gray-700">Refreshes every 3 minutes | Click prices for live Investing.com data</div>' +
                                 '</div>' +
                               '</div>';
+                    FUTURES.forEach(f => {
+                              const canvasId = 'chart-' + f.symbol.replace(/[^a-zA-Z0-9]/g, '');
+                              const canvas = document.getElementById(canvasId);
+                              if (canvas && priceHistory[f.symbol].length > 1) {
+                                          const ctx = canvas.getContext('2d');
+                                          if (charts[f.symbol]) charts[f.symbol].destroy();
+                                          charts[f.symbol] = new Chart(ctx, {
+                                                        type: 'line',
+                                                        data: {
+                                                                        labels: priceHistory[f.symbol].map((_, i) => i + 1),
+                                                                        datasets: [{ data: priceHistory[f.symbol].map(p => p.price), borderColor: f.color, borderWidth: 2, fill: false, tension: 0.3, pointRadius: 0 }]
+                                                        },
+                                                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: true, ticks: { color: '#9ca3af', font: { size: 10 } }, grid: { color: '#374151' } } } }
+                                          });
+                              }
+                    });
             }
-
             render();
-            setTimeout(function() {
-                    var feeds = document.getElementById('feedsSection');
-                    if (feeds) feeds.scrollIntoView({ behavior: 'smooth' });
-            }, 800);
-            setInterval(render, 30000);
+            setInterval(render, 180000);
       </script>
   </body>body>
 </html>html>
