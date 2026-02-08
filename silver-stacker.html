@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Silver Stacker Dashboard</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{background:#0a0a0a;color:#e0e0e0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+    .hdr{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;background:#111;border-bottom:1px solid #222}
+    .hdr h1{font-size:18px;font-weight:700;color:#c0c0c0}
+    .hdr h1 span{color:#888;font-weight:400}
+    .live{background:#16a34a;color:#fff;padding:4px 12px;border-radius:4px;font-size:12px;font-weight:600;animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+    .ml{display:grid;grid-template-columns:1fr 320px;height:calc(100vh - 49px)}
+    .ca{display:flex;flex-direction:column}
+    .cc{flex:1;min-height:0}
+    .sb{background:#111;border-left:1px solid #222;display:flex;flex-direction:column;overflow:hidden}
+    .ss{border-bottom:1px solid #222}
+    .st{font-size:12px;font-weight:700;text-transform:uppercase;color:#666;padding:10px 12px 6px;letter-spacing:.5px}
+    .wi{display:grid;grid-template-columns:1fr auto auto;gap:8px;padding:6px 12px;font-size:13px;cursor:pointer;transition:background .15s;align-items:center}
+    .wi:hover{background:#1a1a2e}
+    .wi .sy{font-weight:600;color:#ddd}
+    .wi .pr{color:#aaa;text-align:right}
+    .wi .ch{text-align:right;font-size:12px;padding:1px 6px;border-radius:3px}
+    .mc{height:200px;border-bottom:1px solid #222}
+    .ip{padding:12px;flex:1;overflow-y:auto}
+    .ip h3{font-size:13px;font-weight:700;color:#888;margin-bottom:8px}
+    .il{list-style:none}
+    .il li{font-size:12px;color:#aaa;padding:4px 0;border-bottom:1px solid #1a1a1a;display:flex;justify-content:space-between}
+    .il li .lb{color:#ccc}
+    .il li .vl{color:#666}
+    .tb{display:flex;background:#111;border-bottom:1px solid #222}
+    .t{padding:8px 16px;font-size:12px;color:#666;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s}
+    .t:hover{color:#aaa}
+    .t.a{color:#2196f3;border-bottom-color:#2196f3}
+    @media(max-width:900px){.ml{grid-template-columns:1fr}.sb{display:none}}
+  </style>
+</head>
+<body>
+  <div class="hdr">
+    <h1>Silver Stacker Dashboard <span>| Smart Silver Stacker Setup</span></h1>
+    <div style="display:flex;align-items:center;gap:12px">
+      <span class="live">LIVE</span>
+      <span style="color:#666;font-size:12px" id="ck"></span>
+    </div>
+  </div>
+  <div class="ml">
+    <div class="ca">
+      <div class="tb">
+        <div class="t a" onclick="sw('TVC:SILVER')">SILVER</div>
+        <div class="t" onclick="sw('TVC:GOLD')">GOLD</div>
+        <div class="t" onclick="sw('AMEX:GDX')">GDX</div>
+        <div class="t" onclick="sw('AMEX:SILJ')">SILJ</div>
+        <div class="t" onclick="sw('BITSTAMP:BTCUSD')">BTC</div>
+        <div class="t" onclick="sw('TVC:DXY')">DXY</div>
+        <div class="t" onclick="sw('TVC:USOIL')">WTI</div>
+      </div>
+      <div class="cc" id="mc"></div>
+    </div>
+    <div class="sb">
+      <div class="ss">
+        <div class="st">Watchlist</div>
+        <div id="wl"></div>
+      </div>
+      <div class="ss mc" id="ov"></div>
+      <div class="ip">
+        <h3>Indicators</h3>
+        <ul class="il">
+          <li><span class="lb">EMA</span><span class="vl">200, close</span></li>
+          <li><span class="lb">RSI</span><span class="vl">14</span></li>
+          <li><span class="lb">MACD</span><span class="vl">12, 26, 9</span></li>
+          <li><span class="lb">Accum/Dist</span><span class="vl">Volume</span></li>
+        </ul>
+        <h3 style="margin-top:12px">Method</h3>
+        <ul class="il">
+          <li><span class="lb">Elliott Wave</span><span class="vl">ABC</span></li>
+          <li><span class="lb">Patterns</span><span class="vl">Wedges</span></li>
+          <li><span class="lb">Divergences</span><span class="vl">RSI+A/D</span></li>
+          <li><span class="lb">Timeframe</span><span class="vl">4H</span></li>
+        </ul>
+        <h3 style="margin-top:12px">Ratios</h3>
+        <ul class="il">
+          <li onclick="sw('TVC:GOLD/TVC:SILVER')" style="cursor:pointer"><span class="lb" style="color:#eab308">GOLD/SILVER</span><span class="vl">Ratio</span></li>
+        </ul>
+        <div style="margin-top:16px;padding:10px;background:#111;border:1px solid #222;border-radius:6px;font-size:11px;color:#555;line-height:1.5">
+          Based on <strong style="color:#888">Smart Silver Stacker</strong> (YouTube). Not financial advice.
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    function uc(){document.getElementById('ck').textContent=new Date().toLocaleTimeString()}uc();setInterval(uc,1000);
+    const W=[['SILVER','TVC:SILVER'],['GOLD','TVC:GOLD'],['GC1!','COMEX:GC1!'],['PLAT','NYMEX:PL1!'],['PALLAD','TVC:PALLADIUM'],['COPPER','TVC:COPPER'],['SILJ','AMEX:SILJ'],['SIL','AMEX:SIL'],['GDX','AMEX:GDX'],['BTC','BITSTAMP:BTCUSD'],['WTI','TVC:USOIL'],['DXY','TVC:DXY']];
+    document.getElementById('wl').innerHTML=W.map(w=>'<div class="wi" onclick="sw(\''+w[1]+'\')"><span class="sy">'+w[0]+'</span><span class="pr">--</span><span class="ch">--</span></div>').join('');
+    function sw(s){
+      document.querySelectorAll('.t').forEach(t=>{t.classList.remove('a');if(t.textContent===s.split(':').pop())t.classList.add('a')});
+      const c=document.getElementById('mc');c.innerHTML='';
+      const d=document.createElement('div');d.className='tradingview-widget-container';d.style.height='100%';d.style.width='100%';
+      d.innerHTML='<div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>';
+      c.appendChild(d);
+      const sc=document.createElement('scrip'+'t');sc.type='text/javascript';
+      sc.src='https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';sc.async=true;
+      sc.textContent=JSON.stringify({autosize:true,symbol:s,interval:"240",timezone:"America/New_York",theme:"dark",style:"1",locale:"en",backgroundColor:"rgba(10,10,10,1)",gridColor:"rgba(30,30,30,0.6)",allow_symbol_change:true,calendar:false,support_host:"https://www.tradingview.com",studies:[{id:"MAExp@tv-basicstudies",inputs:{length:200}},{id:"RSI@tv-basicstudies",inputs:{length:14}},{id:"MACD@tv-basicstudies",inputs:{in_0:12,in_1:26,in_3:9}},{id:"AccDist@tv-basicstudies"}]});
+      d.appendChild(sc);
+    }
+    function lo(){
+      const c=document.getElementById('ov');c.innerHTML='';
+      const d=document.createElement('div');d.className='tradingview-widget-container';d.style.height='100%';d.style.width='100%';
+      d.innerHTML='<div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>';
+      c.appendChild(d);
+      const sc=document.createElement('scrip'+'t');sc.type='text/javascript';
+      sc.src='https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js';sc.async=true;
+      sc.textContent=JSON.stringify({symbols:[["Silver","TVC:SILVER|1M"],["Gold","TVC:GOLD|1M"],["DXY","TVC:DXY|1M"]],chartOnly:true,width:"100%",height:"100%",locale:"en",colorTheme:"dark",autosize:true,showVolume:false,showMA:false,hideDateRanges:true,hideMarketStatus:true,hideSymbolLogo:true,scalePosition:"no",scaleMode:"Normal",noTimeScale:true,valuesTracking:"0",changeMode:"percent",chartType:"area",lineWidth:2,backgroundColor:"rgba(17,17,17,1)"});
+      d.appendChild(sc);
+    }
+    sw('TVC:SILVER');lo();
+  </script>
+</body>
+</html>
